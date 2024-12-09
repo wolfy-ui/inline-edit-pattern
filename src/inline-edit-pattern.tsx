@@ -44,7 +44,11 @@ const EditableField: React.FC<EditableFieldProps> = ({
 
     const handleClick = () => {
       if (elementRef.current && multiline) {
-        setElementHeight(`${elementRef.current.offsetHeight}px`);
+        // Berechne die Höhe ohne Border
+        const computedStyle = window.getComputedStyle(elementRef.current);
+        const height = elementRef.current.offsetHeight - 
+                      parseInt(computedStyle.borderBottomWidth, 10);
+        setElementHeight(`${height}px`);
       }
       setIsEditing(true);
     };
@@ -90,7 +94,7 @@ const EditableField: React.FC<EditableFieldProps> = ({
             style={{ 
               minHeight: elementHeight,
               height: elementHeight,
-              resize: 'vertical'
+              resize: 'vertical',
             }}
             autoFocus
           />
@@ -120,7 +124,7 @@ const EditableField: React.FC<EditableFieldProps> = ({
         onClick={handleClick}
         className={`relative group ${className}`}
       >
-        <span className={`block py-2 cursor-text ${isTitleOrDesc ? '' : 'border-b border-gray-200'}`}>
+        <span className={`block py-2 cursor-text ${isTitleOrDesc ? 'border-b border-transparent' : 'border-b border-gray-200'}`}>
           {value}
         </span>
         <div className="absolute bottom-0 left-0 w-full h-[1px] opacity-0 group-hover:opacity-100">
@@ -196,7 +200,7 @@ const InlineEditPattern = () => {
   return (
     <div className="max-w-4xl mx-auto p-8 space-y-12">
       {/* Header Bereich */}
-      <div className="mb-8">
+      <div>
         <div className="mb-4">
           <EditableField
             value={content.title}
@@ -214,13 +218,13 @@ const InlineEditPattern = () => {
 
       {/* Einfache tabellarische Ansicht */}
       <div>
-        <h2 className="text-sm mb-4">Projektstatus</h2>
+        <h2 className="text-xl font-medium mb-6">Projektstatus</h2>
         <div>
-          <table className="w-full border-separate border-spacing-x-4">
+          <table className="w-full border-separate" style={{ borderSpacing: '16px 0', margin: '0 -16px' }}>
             <tbody>
               {content.tableData.map((row, index) => (
                 <tr key={row.label}>
-                  <td className="w-1/3">
+                  <td className="w-1/4">
                     <span className="block py-2 text-sm text-gray-600 border-b border-gray-200">
                       {row.label}
                     </span>
@@ -241,9 +245,9 @@ const InlineEditPattern = () => {
 
       {/* Komplexe Datentabelle */}
       <div>
-        <h2 className="text-sm mb-4">Komponentenübersicht</h2>
+        <h2 className="text-xl font-medium mb-6">Komponentenübersicht</h2>
         <div>
-          <table className="w-full border-separate border-spacing-x-4">
+          <table className="w-full border-separate" style={{ borderSpacing: '16px 0', margin: '0 -16px' }}>
             <colgroup>
               <col style={{width: '25%'}} />
               <col style={{width: '15%'}} />
