@@ -105,7 +105,8 @@ const EditableMultiLineTextComponent: React.FC<{
             verticalAlign: 'baseline',
             boxSizing: 'border-box',
             display: 'block',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            resize: 'none'
           }}
           autoFocus
         />
