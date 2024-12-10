@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import EditableMultiLineTextComponent from './EditableMultiLineText.tsx';
 
 interface EditableFieldProps {
   value: string;
@@ -10,158 +9,130 @@ interface EditableFieldProps {
   multiline?: boolean;
 }
 
-// Spezialisierte Komponente für den Titel
-const EditableTitle: React.FC<EditableFieldProps> = ({
-  value,
-  onUpdate,
-  className = ''
-}) => {
-  useGradientAnimation();
-  const [isEditing, setIsEditing] = useState(false);
-  const [currentValue, setCurrentValue] = useState(value);
+const EditableField: React.FC<EditableFieldProps> = ({ 
+    value, 
+    onUpdate, 
+    editable = true,
+    type = 'text',
+    className = '',
+    multiline = false
+  }) => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [currentValue, setCurrentValue] = useState(value);
+    const elementRef = React.useRef<HTMLDivElement>(null);
+    const [elementHeight, setElementHeight] = useState('auto');
 
-  const handleBlur = () => {
-    setIsEditing(false);
-    if (currentValue !== value) {
-      onUpdate(currentValue);
-    }
-  };
+    // Gradient Animation CSS
+    React.useEffect(() => {
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes gradientSlide {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+        .animate-gradient {
+          background: linear-gradient(90deg, rgb(229 231 235), rgb(75 85 99), rgb(229 231 235));
+          background-size: 200% 100%;
+          animation: gradientSlide 3s linear infinite;
+        }
+      `;
+      document.head.appendChild(style);
+      return () => {
+        document.head.removeChild(style);
+      };
+    }, []);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleBlur();
-    }
-    if (e.key === 'Escape') {
-      setCurrentValue(value);
+    const handleClick = () => {
+      if (elementRef.current && multiline) {
+        // Berechne die Höhe ohne Border
+        const computedStyle = window.getComputedStyle(elementRef.current);
+        const height = elementRef.current.offsetHeight - 
+                      parseInt(computedStyle.borderBottomWidth, 10);
+        setElementHeight(`${height}px`);
+      }
+      setIsEditing(true);
+    };
+
+    const handleBlur = () => {
       setIsEditing(false);
-    }
-  };
+      if (currentValue !== value) {
+        onUpdate(currentValue);
+      }
+    };
 
-  if (isEditing) {
-    return (
-      <div className="relative">
+    const handleKeyDown = (e) => {
+      if (e.key === 'Enter' && !multiline) {
+        handleBlur();
+      }
+      if (e.key === 'Escape') {
+        setCurrentValue(value);
+        setIsEditing(false);
+      }
+    };
+
+    if (!editable) {
+      return (
+        <span className={`py-2 block border-b border-gray-200 ${className}`}>
+          {value}
+        </span>
+      );
+    }
+
+    if (isEditing) {
+      const fontClasses = className.split(' ').filter(cls => 
+        cls.startsWith('text-') || cls.startsWith('font-')
+      ).join(' ');
+
+      if (multiline) {
+        return (
+          <textarea
+            value={currentValue}
+            onChange={(e) => setCurrentValue(e.target.value)}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+            className={`w-full bg-transparent outline-none py-2 border-b border-black ${fontClasses}`}
+            style={{ 
+              minHeight: elementHeight,
+              height: elementHeight,
+              resize: 'vertical',
+            }}
+            autoFocus
+          />
+        );
+      }
+      return (
         <input
-          type="text"
+          type={type}
           value={currentValue}
           onChange={(e) => setCurrentValue(e.target.value)}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
-          className={`w-full bg-transparent outline-none py-2 border-b border-black ${className}`}
+          className={`w-full bg-transparent outline-none py-2 border-b border-black ${fontClasses}`}
           style={{ 
             fontFamily: 'inherit'
           }}
           autoFocus
         />
-      </div>
-    );
-  }
-
-  return (
-    <div
-      onClick={() => setIsEditing(true)}
-      className={`relative group ${className}`}
-    >
-      <span className="block py-2 cursor-text border-b border-transparent">
-        {value}
-      </span>
-      <div className="absolute bottom-0 left-0 w-full h-[1px] opacity-0 group-hover:opacity-100">
-        <div className="w-full h-full animate-gradient" />
-      </div>
-    </div>
-  );
-};
-
-// Originale EditableField für Tabellenzellen
-const EditableField: React.FC<EditableFieldProps> = ({ 
-  value, 
-  onUpdate, 
-  editable = true,
-  type = 'text',
-  className = '',
-  multiline = false
-}) => {
-  useGradientAnimation();
-  const [isEditing, setIsEditing] = useState(false);
-  const [currentValue, setCurrentValue] = useState(value);
-
-  const handleBlur = () => {
-    setIsEditing(false);
-    if (currentValue !== value) {
-      onUpdate(currentValue);
+      );
     }
-  };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      handleBlur();
-    }
-    if (e.key === 'Escape') {
-      setCurrentValue(value);
-      setIsEditing(false);
-    }
-  };
-
-  if (!editable) {
+    const isTitleOrDesc = className.includes('text-2xl') || className.includes('text-gray-600');
+    
     return (
-      <span className={`py-2 block border-b border-gray-200 ${className}`}>
-        {value}
-      </span>
-    );
-  }
-
-  if (isEditing) {
-    return (
-      <input
-        type={type}
-        value={currentValue}
-        onChange={(e) => setCurrentValue(e.target.value)}
-        onBlur={handleBlur}
-        onKeyDown={handleKeyDown}
-        className={`w-full bg-transparent outline-none py-2 border-b border-black ${className}`}
-        style={{ 
-          fontFamily: 'inherit'
-        }}
-        autoFocus
-      />
-    );
-  }
-
-  return (
-    <div
-      onClick={() => setIsEditing(true)}
-      className={`relative group ${className}`}
-    >
-      <span className="block py-2 cursor-text border-b border-gray-200">
-        {value}
-      </span>
-      <div className="absolute bottom-0 left-0 w-full h-[1px] opacity-0 group-hover:opacity-100">
-        <div className="w-full h-full animate-gradient" />
+      <div
+        ref={elementRef}
+        onClick={handleClick}
+        className={`relative group ${className}`}
+      >
+        <span className={`block py-2 cursor-text ${isTitleOrDesc ? 'border-b border-transparent' : 'border-b border-gray-200'}`}>
+          {value}
+        </span>
+        <div className="absolute bottom-0 left-0 w-full h-[1px] opacity-0 group-hover:opacity-100">
+          <div className="w-full h-full animate-gradient" />
+        </div>
       </div>
-    </div>
-  );
-};
-
-// Custom Hook für Gradient Animation
-const useGradientAnimation = () => {
-  React.useEffect(() => {
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes gradientSlide {
-        0% { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
-      }
-      .animate-gradient {
-        background: linear-gradient(90deg, rgb(229 231 235), rgb(75 85 99), rgb(229 231 235));
-        background-size: 200% 100%;
-        animation: gradientSlide 3s linear infinite;
-      }
-    `;
-    document.head.appendChild(style);
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
-};
+    );
+  };
 
 const InlineEditPattern = () => {
   const [content, setContent] = useState({
@@ -231,16 +202,17 @@ const InlineEditPattern = () => {
       {/* Header Bereich */}
       <div>
         <div className="mb-4">
-          <EditableTitle
+          <EditableField
             value={content.title}
             onUpdate={(value) => updateField('title', value)}
             className="text-2xl font-semibold"
           />
         </div>
-        <EditableMultiLineTextComponent
+        <EditableField
           value={content.description}
           onUpdate={(value) => updateField('description', value)}
           className="text-gray-600"
+          multiline={true}
         />
       </div>
 

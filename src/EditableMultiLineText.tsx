@@ -1,21 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-interface DebugHeights {
-  textSpan: number;
-  textarea: number;
-  scroll: number;
-}
-
 const EditableMultiLineTextComponent: React.FC<{
   value: string;
   onUpdate: (value: string) => void;
   className?: string;
-  onHeightChange: (heights: DebugHeights) => void;
 }> = ({
   value,
   onUpdate,
   className = '',
-  onHeightChange
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [currentValue, setCurrentValue] = useState(value);
@@ -48,11 +40,6 @@ const EditableMultiLineTextComponent: React.FC<{
     if (textSpanRef.current && !initialHeight) {
       const height = textSpanRef.current.offsetHeight;
       setInitialHeight(height);
-      onHeightChange({
-        textSpan: height,
-        textarea: 0,
-        scroll: 0
-      });
     }
   }, []);
 
@@ -69,12 +56,6 @@ const EditableMultiLineTextComponent: React.FC<{
     if (textarea && initialHeight) {
       const newHeight = Math.max(initialHeight, textarea.scrollHeight);
       textarea.style.height = `${newHeight}px`;
-
-      onHeightChange({
-        textSpan: initialHeight,
-        textarea: newHeight,
-        scroll: textarea.scrollHeight
-      });
     }
   };
 
@@ -156,5 +137,4 @@ const EditableMultiLineTextComponent: React.FC<{
   );
 };
 
-export type { DebugHeights };
 export default EditableMultiLineTextComponent; 
