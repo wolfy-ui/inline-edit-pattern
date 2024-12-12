@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/inline-edit-pattern/static/css/main.5c7df86c.css",
+    "main.js": "/inline-edit-pattern/static/js/main.79cc3900.js",
+    "index.html": "/inline-edit-pattern/index.html",
+    "main.5c7df86c.css.map": "/inline-edit-pattern/static/css/main.5c7df86c.css.map",
+    "main.79cc3900.js.map": "/inline-edit-pattern/static/js/main.79cc3900.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.5c7df86c.css",
+    "static/js/main.79cc3900.js"
+  ]
+}

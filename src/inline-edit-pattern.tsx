@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import EditableMultiLineTextComponent from './EditableMultiLineText.tsx';
+import TextOutput from './components/TextOutput.tsx';
 
 interface EditableFieldProps {
   value: string;
@@ -333,8 +334,11 @@ const InlineEditPattern = () => {
           </table>
         </div>
       </div>
+
+      <TextOutput />
     </div>
   );
+
 };
 
 export default InlineEditPattern;
